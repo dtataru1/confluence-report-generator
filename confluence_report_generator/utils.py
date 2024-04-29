@@ -2,6 +2,23 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import io
 import base64
+import xml.etree.ElementTree as ET
+
+
+def is_valid_xml(xml_string: str) -> bool:
+    """Check if a string is a valid XML document.
+
+    Args:
+        xml_string (str): String to check if it is a valid XML document.
+
+    Returns:
+        bool: True if the string is a valid XML document, False otherwise.
+    """
+    try:
+        ET.fromstring(xml_string)
+        return True
+    except ET.ParseError:
+        return False
 
 
 def fig_to_confluence_xml(
@@ -95,15 +112,16 @@ def media_xml(media_type: str, filename: str) -> str:
     Returns:
         str: Confluence XML for the specified media type.
     """
-    if media_type == 'image':
-        tag = 'ac:image'
-    elif media_type == 'video':
-        tag = 'ac:video'
+    if media_type == "image":
+        tag = "ac:image"
+    elif media_type == "video":
+        tag = "ac:video"
     else:
-        tag = 'ri:attachment'
+        tag = "ri:attachment"
         return f'<ac:link><ri:attachment ri:filename="{filename}" /></ac:link>'
 
     return f'<{tag}><ri:attachment ri:filename="{filename}" /></{tag}>'
+
 
 def mention_user_xml(username: str) -> str:
     """
@@ -131,6 +149,7 @@ def insert_expand_xml(title: str, content: str) -> str:
     """
     return f'<ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">{title}</ac:parameter><ac:rich-text-body>{content}</ac:rich-text-body></ac:structured-macro>'
 
+
 def insert_code_snippet_xml(language: str, code: str) -> str:
     """
     Generate Confluence XML for a code snippet.
@@ -144,6 +163,7 @@ def insert_code_snippet_xml(language: str, code: str) -> str:
     """
     return f'<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">{language}</ac:parameter><ac:plain-text-body><![CDATA[{code}]]></ac:plain-text-body></ac:structured-macro>'
 
+
 def insert_status_xml(status: str) -> str:
     """
     Generate Confluence XML for a status label.
@@ -155,6 +175,7 @@ def insert_status_xml(status: str) -> str:
         str: Confluence XML for a status label.
     """
     return f'<ac:structured-macro ac:name="status"><ac:parameter ac:name="title">{status}</ac:parameter></ac:structured-macro>'
+
 
 def linked_status_xml(action_item_content: str, status: str) -> str:
     """
@@ -168,6 +189,7 @@ def linked_status_xml(action_item_content: str, status: str) -> str:
         str: Confluence XML for an action item linked to a status label.
     """
     return f'{action_item_xml("assignee_placeholder", "due_date_placeholder", action_item_content)}{insert_status_xml(status)}'
+
 
 def insert_message_xml(message_type: str, message: str) -> str:
     """
@@ -196,6 +218,7 @@ def insert_decision_xml(decision: str, decision_date: str) -> str:
     """
     return f'<ac:structured-macro ac:name="decision"><ac:parameter ac:name="decision">{decision}</ac:parameter><ac:parameter ac:name="date">{decision_date}</ac:parameter></ac:structured-macro>'
 
+
 def insert_date_xml(date: str) -> str:
     """
     Generate Confluence XML for displaying a date.
@@ -208,7 +231,8 @@ def insert_date_xml(date: str) -> str:
     """
     return f'<time datetime="{date}">{date}</time>'
 
-def insert_list_xml(items: list, list_type: str = 'bullet') -> str:
+
+def insert_list_xml(items: list, list_type: str = "bullet") -> str:
     """
     Generate Confluence XML for a list (bullet or numbered).
 
@@ -219,9 +243,9 @@ def insert_list_xml(items: list, list_type: str = 'bullet') -> str:
     Returns:
         str: Confluence XML for the list.
     """
-    tag = 'ul' if list_type == 'bullet' else 'ol'
-    list_items = ''.join(f'<li>{item}</li>' for item in items)
-    return f'<{tag}>{list_items}</{tag}>'
+    tag = "ul" if list_type == "bullet" else "ol"
+    list_items = "".join(f"<li>{item}</li>" for item in items)
+    return f"<{tag}>{list_items}</{tag}>"
 
 
 def insert_layout_xml(content_sections: list) -> str:
@@ -234,8 +258,11 @@ def insert_layout_xml(content_sections: list) -> str:
     Returns:
         str: Confluence XML for the layout.
     """
-    sections_xml = ''.join(f'<ac:layout-section ac:type="single"><ac:layout-cell>{section}</ac:layout-cell></ac:layout-section>' for section in content_sections)
-    return f'<ac:layout>{sections_xml}</ac:layout>'
+    sections_xml = "".join(
+        f'<ac:layout-section ac:type="single"><ac:layout-cell>{section}</ac:layout-cell></ac:layout-section>'
+        for section in content_sections
+    )
+    return f"<ac:layout>{sections_xml}</ac:layout>"
 
 
 def insert_link_xml(url: str, link_text: str) -> str:
@@ -251,6 +278,7 @@ def insert_link_xml(url: str, link_text: str) -> str:
     """
     return f'<ac:link><ri:url ri:value="{url}" /><ac:plain-text-link-body><![CDATA[{link_text}]]></ac:plain-text-link-body></ac:link>'
 
+
 def insert_paragraph_xml(content: str) -> str:
     """
     Generate Confluence XML for a paragraph.
@@ -261,7 +289,8 @@ def insert_paragraph_xml(content: str) -> str:
     Returns:
         str: Confluence XML for the paragraph.
     """
-    return f'<p>{content}</p>'
+    return f"<p>{content}</p>"
+
 
 def insert_heading_xml(content: str, level: int) -> str:
     """
@@ -274,7 +303,8 @@ def insert_heading_xml(content: str, level: int) -> str:
     Returns:
         str: Confluence XML for the heading.
     """
-    return f'<h{level}>{content}</h{level}>'
+    return f"<h{level}>{content}</h{level}>"
+
 
 def insert_toc_xml() -> str:
     """
@@ -285,6 +315,7 @@ def insert_toc_xml() -> str:
     """
     return '<ac:structured-macro ac:name="toc" />'
 
+
 def insert_child_pages_list_xml() -> str:
     """
     Generate Confluence XML for listing child pages of the current page.
@@ -293,6 +324,7 @@ def insert_child_pages_list_xml() -> str:
         str: Confluence XML for listing child pages.
     """
     return '<ac:structured-macro ac:name="children" />'
+
 
 def insert_task_report_xml() -> str:
     """
@@ -313,6 +345,7 @@ def insert_page_properties_report_xml() -> str:
     """
     return '<ac:structured-macro ac:name="page-properties-report" />'
 
+
 def insert_change_history_xml() -> str:
     """
     Generate Confluence XML for displaying the change history of a page.
@@ -322,6 +355,7 @@ def insert_change_history_xml() -> str:
     """
     return '<ac:structured-macro ac:name="change-history" />'
 
+
 def insert_contributions_summary_xml() -> str:
     """
     Generate Confluence XML for summarizing contributions to a page.
@@ -330,6 +364,7 @@ def insert_contributions_summary_xml() -> str:
         str: Confluence XML for contributions summary.
     """
     return '<ac:structured-macro ac:name="contributor-summary" />'
+
 
 def insert_iframe_xml(url: str, width: str = "100%", height: str = "300px") -> str:
     """
