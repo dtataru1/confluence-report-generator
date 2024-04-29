@@ -2,5 +2,5 @@
 
 config/*
 
-confluence_report_genertaor.egg-info/*
+confluence_report_generator.egg-info/*
 dist/*
