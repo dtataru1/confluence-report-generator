@@ -1,6 +1,9 @@
 *.pyc
 
-config/*
+config*
+confluence_report_generator.egg-info*
+dist*
+build*
+*__pycache__*
 
-confluence_report_generator.egg-info/*
-dist/*
+venv*
