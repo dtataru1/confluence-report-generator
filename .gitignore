@@ -1,3 +1,6 @@
 *.pyc
 
 config/*
+
+confluence_report_genertaor.egg-info/*
+dist/*
