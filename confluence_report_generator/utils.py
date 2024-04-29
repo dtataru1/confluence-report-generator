@@ -205,18 +205,17 @@ def insert_message_xml(message_type: str, message: str) -> str:
     return f'<ac:message ac:type="{message_type}">{message}</ac:message>'
 
 
-def insert_decision_xml(decision: str, decision_date: str) -> str:
+def insert_decision_xml(decision: str) -> str:
     """
     Generate Confluence XML for a decision.
 
     Args:
         decision (str): The decision made.
-        decision_date (str): The date the decision was made.
 
     Returns:
         str: Confluence XML for the decision.
     """
-    return f'<ac:structured-macro ac:name="decision"><ac:parameter ac:name="decision">{decision}</ac:parameter><ac:parameter ac:name="date">{decision_date}</ac:parameter></ac:structured-macro>'
+    return f'<ac:structured-macro ac:name="decision"><ac:parameter ac:name="decision">{decision}</ac:parameter><</ac:structured-macro>'
 
 
 def insert_date_xml(date: str) -> str:
