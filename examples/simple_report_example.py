@@ -48,7 +48,6 @@ ax.set_ylabel("Data Y")
 ax.set_title("Random Data Plot")
 ax.grid(True)
 fig.tight_layout()
-plt.show()
 
 # Convert matplotlib figure to Confluence XML
 image_xml = fig_to_confluence_xml(fig, image_title="Age Distribution")
@@ -63,9 +62,7 @@ action_item_content = "Follow up with clients"
 action_item_in_xml = action_item_xml(assignee, due_date, action_item_content)
 
 # Create a decision
-decision = "Approve budget proposal"
-decision_date = datetime.now().strftime("%Y-%m-%d")
-decision_xml = insert_decision_xml(decision)
+decisions_xml = insert_decisions_xml(["Approved budget proposal"])
 
 # Create a hyperlink
 url = "https://www.example.com"
@@ -75,8 +72,13 @@ hyperlink_xml = insert_link_xml(url, link_text)
 # Create a new page and append content
 page_title =  "Simple Report Example"
 
-page_content = image_xml
-# page_content = f"{decision}"
+
+
+
+print(decisions_xml)
+page_content = decisions_xml
+
+
 report_generator.create_page(
     space=space, title=page_title, parent_id=page_parent_ID, body=page_content
 )

@@ -22,34 +22,29 @@ def is_valid_xml(xml_string: str) -> bool:
 
 
 def fig_to_confluence_xml(
-    fig: plt.Figure, image_title: str = None, title_size: str = "Large"
+    fig: plt.Figure, image_title: str = None, title_size: int = 1
 ) -> str:
     """
-    Convert a Matplotlib figure to a Confluence XML image macro.
-
-    Args:
-        fig (plt.Figure): Matplotlib figure object.
-        image_title (str): Title for the image.
-        title_size (str): Size of the title (Large, Medium, Small, etc.).
-
-    Returns:
-        str: Confluence XML with the base64 encoded image.
+    Embed a matplotlib figure as a base64 image in a Confluence page.
+    :param confluence: Confluence API client object.
+    :param fig: Matplotlib figure object.
+    :param space: Confluence space key.
+    :param page_title: Title of the Confluence page to update or create.
+    :param image_title: Description title for the image.
+    :return: None
     """
-
+    # Convert figure to a BytesIO buffer and then to a base64 string
     img_data = io.BytesIO()
     fig.savefig(img_data, format="png", bbox_inches="tight")
     img_data.seek(0)
     img_base64 = base64.b64encode(img_data.read()).decode("utf-8")
 
-    xml = (
-        f'<ac:image ac:height="300">'
-        f'<ri:attachment ri:filename="{image_title}.png" />'
-        f'<ac:parameter ac:name="atlassian-macro-output-type">BLOCK</ac:parameter>'
-        f"</ac:image>"
-    )
+    # Create an HTML image element with the base64 string
+    xml = f'<img src="data:image/png;base64,{img_base64}" alt="{image_title}"/>'
 
+    # Create or update the Confluence page with the image embedded in HTML
     if image_title:
-        return f"<h1>{image_title}</h1>{xml}"
+        return f"<h{title_size}>{image_title}</h{title_size}>{xml}"
     else:
         return xml
 
@@ -205,17 +200,65 @@ def insert_message_xml(message_type: str, message: str) -> str:
     return f'<ac:message ac:type="{message_type}">{message}</ac:message>'
 
 
-def insert_decision_xml(decision: str) -> str:
+def insert_decisions_xml(decisions: list[str]) -> str:
     """
-    Generate Confluence XML for a decision.
-
+    Generate Confluence XML for a list of decisions.
     Args:
-        decision (str): The decision made.
+        decisions (list of str): List of decisions.
 
     Returns:
-        str: Confluence XML for the decision.
+        str: Confluence XML for the decisions list.
     """
-    return f'<ac:structured-macro ac:name="decision"><ac:parameter ac:name="decision">{decision}</ac:parameter><</ac:structured-macro>'
+    # decisions_xml = ""
+    # for decision in decisions:
+    #     decisions_xml += '<ac:structured-macro ac:name="decision">'
+    #     decisions_xml += f"{decision}"
+    #     # decisions_xml += f'<ac:parameter ac:name="title">{decision}</ac:parameter>'
+    #     decisions_xml += '</ac:structured-macro>'
+   
+    decisions_xml = '''
+<ac:structured-macro ac:name="decision">
+    <ac:parameter ac:name="title">Decision Title</ac:parameter>
+    <ac:rich-text-body>
+        <p>Decision Details</p>
+        <p>Options Considered:</p>
+        <ul>
+            <li>Option 1</li>
+            <li>Option 2</li>
+            <!-- Add more options as needed -->
+        </ul>
+        <p>Decision Rationale</p>
+        <p>Decision Outcome</p>
+        <p>Follow-Up Actions:</p>
+        <ul>
+            <li>Task 1</li>
+            <li>Task 2</li>
+            <!-- Add more tasks as needed -->
+        </ul>
+    </ac:rich-text-body>
+</ac:structured-macro>
+'''
+
+   
+    return decisions_xml
+
+def generate_action_points(action_points):
+    """
+    Generates a list of action points for a Confluence page using the Confluence action item macro.
+    
+    Args:
+        action_points (list of str): List of action points.
+        
+    Returns:
+        str: Confluence formatted list of action points using the action item macro.
+    """
+    html_output = "<h1>Action Points</h1>"
+    for point in action_points:
+        html_output += '<ac:task-list><ac:task>'
+        html_output += f'<ac:task-status>incomplete</ac:task-status>'
+        html_output += f'<ac:task-body>{point}</ac:task-body>'
+        html_output += '</ac:task></ac:task-list>'
+    return html_output
 
 
 def insert_date_xml(date: str) -> str:
